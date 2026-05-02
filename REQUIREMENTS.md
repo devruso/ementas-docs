@@ -54,7 +54,7 @@
 | E03US02 | Visualizar disciplinas |
 |---------|-----------------|
 | *Descrição da história* |  Como um professor, quero visualizar a lista de disciplinas cadastradas, para que ela fique disponível para acesso externo|
-|*Critérios de aceitação*| _Cenário 01: Buscar disciplinas_ <br> Dado que o usuário esteja na interface de listagem de disciplinas <br> Quando digitar alguma informação no campo "Nome ou código da disciplina" <br> Então o sistema buscará em tempo real _(autocomplete)_ as disciplinas que estejam de acordo ao filtro <br> E exibirá na listagem de disciplinas. <br><br>_Cenário 02: Listar disciplinas_ <br> Dado que o usuário tenha informado algum dado no campo de busca <br> Quando houverem disciplinas que se encaixam na informação buscada <br> Então o sistema exibirá o código e nome da disciplina <br> E permitirá o clique para visualização dos detalhes da disciplina.
+|*Critérios de aceitação*| _Cenário 01: Buscar disciplinas_ <br> Dado que o usuário esteja na interface de listagem de disciplinas <br> Quando digitar alguma informação no campo "Nome ou código da disciplina" <br> Então o sistema buscará em tempo real _(autocomplete)_ as disciplinas que estejam de acordo ao filtro <br> E exibirá na listagem de disciplinas. <br> E a busca deverá ser tolerante a acentuação (ex.: "expressao" deve encontrar "expressão"). <br><br>_Cenário 02: Listar disciplinas_ <br> Dado que o usuário tenha informado algum dado no campo de busca <br> Quando houverem disciplinas que se encaixam na informação buscada <br> Então o sistema exibirá o código e nome da disciplina <br> E permitirá o clique para visualização dos detalhes da disciplina.
 
 
 | E03US03 | Visualizar detalhes da disciplina |
@@ -83,7 +83,13 @@
 | E03US07 | Exportar conteúdo de disciplina |
 |---------|-----------------|
 | *Descrição da história* | Como um professor ou um visitante, quero exportar o conteúdo de uma disciplina, para obter suas informações em formato específico padronizado |
-|*Critérios de aceitação*|
+|*Critérios de aceitação*| _Cenário 01: Exportação oficial_ <br> Dado que o usuário esteja na tela de detalhes da disciplina <br> Quando clicar no botão de exportação PDF <br> Então a interface deve indicar explicitamente que o arquivo gerado é da versão oficial publicada da disciplina. |
+
+## Requisitos de Robustez e Regressão
+
+- A busca de disciplina por código nos endpoints de detalhe (publicado e rascunho) deve usar igualdade exata case-insensitive, sem matching parcial por `LIKE`.
+- O histórico de atualização de rascunho deve registrar campos alterados e, para campos críticos (`program` e `workload`), também os valores anteriores e novos.
+- A diferenciação entre rascunho e versão oficial deve ser explícita na UX de detalhe e exportação.
 
 | E03US08 | Criar serviço de importação de disciplinas |
 |---------|-----------------|

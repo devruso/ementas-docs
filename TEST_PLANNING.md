@@ -24,11 +24,16 @@
 - **`should be able to list the components`**: Para que esse teste passe, sua aplicação deve retornar um array de disciplinas.
 - **`should be able to list the component by id`**: Para que esse teste passe, sua aplicação deve retornar um objeto do tipo disciplina referente a disciplina encontrada para o respectivo id.
 - **`should be able to list the components filtered by name or code`**: Para que esse teste passe, sua aplicação deve retornar um array de disciplinas que deem match com um nome ou código.
+- **`should be able to search published disciplines without accent marks`**: Para que esse teste passe, a busca do catálogo público deve retornar disciplinas com acento mesmo quando o termo de busca for enviado sem acentuação.
 - **`should be able to preview a draft import from DOCX/PDF`**: Para que esse teste passe, sua aplicação deve receber um arquivo válido autenticado na rota de preview de rascunho e retornar um payload sugerido com os campos reconhecidos e a lista de seções não reconhecidas para revisão humana.
 - **`should not be able to preview a draft import without file`**: Para que esse teste passe, sua aplicação deve retornar código 400 quando a rota de preview for chamada sem arquivo multipart.
 - **`should not be able to preview a draft import with unsupported file type`**: Para que esse teste passe, sua aplicação deve retornar código 400 quando a rota de preview receber um arquivo diferente de PDF ou DOCX.
 - **`should not be able to preview a draft import above file size limit`**: Para que esse teste passe, sua aplicação deve retornar código 400 quando o arquivo exceder o limite configurado de upload.
 - **`should be able to export component PDF with approval metadata when available`**: Para que esse teste passe, sua aplicação deve incluir no PDF exportado os dados de aprovação formal da disciplina quando o último log de aprovação existir.
+- **`should persist official version code and snapshot on approval log`**: Para que esse teste passe, ao aprovar um rascunho o sistema deve registrar no log de aprovação o código de versão (`ddMMyyyy + ata`) e o snapshot oficial de ementa/conteúdo programático publicado.
+- **`should be able to get component details by code without authentication`**: Para que esse teste passe, a rota pública de detalhes por código deve retornar a disciplina publicada sem exigir token.
+- **`should return the exact draft by code even when there are similar codes`**: Para que esse teste passe, ao consultar um código de disciplina em rascunho o backend deve retornar exclusivamente a disciplina com igualdade exata case-insensitive, sem confundir com códigos semelhantes.
+- **`should persist draft update log with previous/new values for critical fields`**: Para que esse teste passe, ao alterar rascunho e publicar a disciplina o histórico deve registrar `program` e `workload` com valores anteriores e novos (before/after).
 
 | Testes Unitários | Módulo de Auth |
 |---------|-----------------|
@@ -70,3 +75,17 @@
 |---------|-----------------|
 | *Quantidade Estimada* | 5 |
 | *Prioridade* | Baixa |
+
+## Evidência de Execução E2E (Docker Compose) - 2026-05-02
+
+- Ambiente: `api-bdcp/docker-compose.yml` (serviços `api`, `app`, `postgres`).
+- Cenário executado:
+  - build e subida da stack com `docker compose up -d --build`;
+  - criação de usuário convidado e autenticação na API;
+  - importação SIAC com payload real: `{ "cdCurso": 112140, "nuPerCursoInicial": 20132 }`.
+- Resultado observado:
+  - total de disciplinas antes da importação: `1`;
+  - total de disciplinas após importação: `37`;
+  - códigos de exemplo importados: `MATA67, MATA66, MATE11, MATA88, MATA65...`.
+- Verificação complementar:
+  - `GET /api/components/MATA67` retornou `prerequeriments="NAO_SE_APLICA"`, conforme simplificação de pré-requisitos (texto/códigos sem vínculo automático nesta etapa).
