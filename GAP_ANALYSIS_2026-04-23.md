@@ -32,6 +32,47 @@
   - `api-bdcp`: `jest ComponentDocumentFlow.spec.ts --runInBand` passed.
   - `ementas-app`: `vitest run src/pages/DisciplineDetailsPage.test.tsx` passed.
 
+## Update 2026-05-05 (Documentation of Published Commits)
+
+### Implemented Slice Summary
+- Backend infrastructure stabilization published in commit `68a429d`:
+  - explicit TypeScript module resolution alignment in `api-bdcp`;
+  - editor/compiler divergence removed for `typeorm` resolution.
+- Frontend governance and public sharing published in commit `901435a`:
+  - `SUPER_ADMIN` governance in user management and protected admin flows;
+  - approval signature required for official publication;
+  - temporary public sharing with token, expiration, listing, filtering, and revocation;
+  - incremental UX refinements for academic consultation and administration.
+
+### Monograph-Oriented Narrative
+
+#### Problem
+The BDCP evolution exposed two relevant classes of technical limitation. The first was a tooling inconsistency in the backend, where the editor reported a dependency resolution failure that did not reproduce in the project compiler. The second was a functional gap in the frontend concerning academic governance, especially privileged profile administration, formal approval validation, and controlled public exposure of official discipline data.
+
+#### Technical Decision
+The adopted strategy was to keep the evolution incremental and traceable. A narrow infrastructure fix was isolated in the backend to remove TypeScript module resolution ambiguity. Separately, a functional frontend slice was consolidated to strengthen institutional governance rules through `SUPER_ADMIN`, require signature-backed approval for official publication, and constrain public access through temporary share links instead of unrestricted exposure.
+
+#### Evidence
+The resulting work was published in two conventional commits with separate intent and validation scope: `68a429d` for backend tooling stability and `901435a` for frontend governance/publication behavior. Validation evidence included successful execution of `npm run typecheck` in `api-bdcp`, plus `npm run typecheck` and `npm run test:run` in `ementas-app`, with passing tests covering publication approval and user management flows.
+
+#### Academic Impact
+This slice improves robustness, governance explicitness, and implementation auditability. From a TCC perspective, it strengthens alignment between documented requirements and operational behavior, while providing concrete artifacts that support methodological traceability between requirement, implementation, validation, and delivered increment.
+
+### Traceability Matrix for TCC Evidence
+
+| Requirement / Objective | Commit | Validation / Test Evidence | Main Changed Files |
+| --- | --- | --- | --- |
+| Development environment stability for TypeScript dependency resolution | `68a429d` | `api-bdcp`: `npm run typecheck` | `api-bdcp/tsconfig.json` |
+| Governance by privileged role (`SUPER_ADMIN`) in user management | `901435a` | `ementas-app`: `npm run test:run`; scenario `UsersPage > deve permitir ao super admin atualizar o perfil de usuário` | `ementas-app/src/pages/UsersPage.tsx`; `ementas-app/src/components/UsersTable.tsx`; `ementas-app/src/components/AdminRoute.tsx`; `ementas-app/src/pages/UsersPage.test.tsx`; `ementas-app/src/types.ts`; `ementas-app/src/lib/api.ts` |
+| Direct teacher creation in the application with governance-compatible flow | `901435a` | `ementas-app`: `npm run test:run`; scenario `UsersPage > deve criar professor diretamente no app` | `ementas-app/src/pages/UsersPage.tsx`; `ementas-app/src/pages/UsersPage.test.tsx`; `ementas-app/src/lib/api.ts` |
+| Mandatory signature for official publication approval | `901435a` | `ementas-app`: `npm run test:run`; scenario `DisciplineDetailsPage > deve aprovar rascunho com data e número de ata` | `ementas-app/src/pages/ProfilePage.tsx`; `ementas-app/src/components/ApproveDraftDialog.tsx`; `ementas-app/src/pages/DisciplineDetailsPage.tsx`; `ementas-app/src/pages/DisciplineDetailsPage.test.tsx`; `ementas-app/src/lib/api.ts` |
+| Controlled public access through temporary share links | `901435a` | `ementas-app`: `npm run test:run`; scenarios for listing, revoking, filtering, ordering, and pagination of active links | `ementas-app/src/pages/DisciplineDetailsPage.tsx`; `ementas-app/src/pages/SharedDisciplinePage.tsx`; `ementas-app/src/pages/DisciplineDetailsPage.test.tsx`; `ementas-app/src/App.tsx`; `ementas-app/src/lib/api.ts`; `ementas-app/src/types.ts` |
+| UX support for academic consultation and operational navigation | `901435a` | `ementas-app`: `npm run typecheck` and regression through `npm run test:run` | `ementas-app/src/components/AppShell.tsx`; `ementas-app/src/pages/DisciplineListPage.tsx`; `ementas-app/src/components/SectionCard.tsx`; `ementas-app/src/styles.css` |
+
+### Recommended Documentation Use
+- Use `docs-bdcp/README.md` as the executive summary source for delivered increments.
+- Use this section in `GAP_ANALYSIS_2026-04-23.md` as auditable evidence linking requirement, commit, validation, and implementation surface.
+
 ## Traceability Matrix
 
 | Requirement | Status | Evidence | Risk | Recommended slice |
