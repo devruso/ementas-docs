@@ -1,5 +1,137 @@
 # Diario de Analise Tecnica (BDCP)
 
+## 2026-05-11 - Convite por e-mail com fallback sem SMTP em ambiente de desenvolvimento
+
+### Problema reportado
+
+- Fluxo de convite e envio de credenciais ficava dependente de SMTP configurado, bloqueando operação local quando credenciais não estavam válidas.
+
+### Implementacao
+
+- Backend (`MailerService`):
+  - Mantido modo explícito `MAILER_MOCK=true`.
+  - Adicionado fallback automático para mock quando `MAILER_USER`/`MAILER_PASSWORD` não estão definidos.
+  - Em fallback, o backend registra conteúdo do e-mail em log e não interrompe o fluxo de criação/convite.
+- Backend (`UserService.createTeacherByAdmin`):
+  - `emailDeliveryStatus` passa a refletir o modo real retornado pelo `Mailer` (`sent` ou `mock`), sem inferência indireta por variável de ambiente.
+- Documentação (`ementas-api/README.md`):
+  - Seção de mailer atualizada para deixar explícito que SMTP é opcional em desenvolvimento.
+
+### Evidencias de validacao
+
+- `ementas-api`:
+  - `npm run typecheck` concluido sem erro.
+
+## 2026-05-11 - Unicidade de numero de ATA com idempotencia e concorrencia no publish
+
+### Problema reportado
+
+- Publicacoes concorrentes de disciplinas diferentes podiam reutilizar o mesmo numero de ATA, gerando inconsistencias de governanca.
+
+### Implementacao
+
+- Backend (`ComponentDraftService.approve`):
+  - Adicionado pre-check de disponibilidade do numero de ATA para logs de aprovacao.
+  - Adicionado tratamento explicito para conflito de unicidade em corrida concorrente (erro 409 com mensagem amigavel).
+- Banco (`migration 1778122800000`):
+  - Criado indice unico parcial em `component_logs` para `LOWER(BTRIM(agreement_number))` apenas quando `type = 'approval'` e numero informado.
+  - Incluida verificacao de duplicidades preexistentes na migration para falhar com diagnostico claro em caso de base inconsistente.
+
+### Evidencias de validacao
+
+- `ementas-api`:
+  - `npm run typecheck` concluido sem erro.
+  - `npm run migration:run` executado com sucesso, aplicando `addUniqueApprovalAgreementNumber1778122800000`.
+  - Checagem SQL de duplicidades atuais (`component_logs` de `approval` por `LOWER(BTRIM(agreement_number))`) retornou `0 rows`.
+  - Teste de integracao adicionado para bloquear segunda publicacao com mesmo numero de ATA.
+
+## 2026-05-11 - Polimento UX da validacao ABNT no fluxo de publicacao oficial
+
+### Problema reportado
+
+- Usuario final recebia erro 400 no momento de publicar sem orientacao suficiente sobre como corrigir referencias nao web sem ano.
+- O rascunho era salvo (comportamento correto), mas faltava aviso preventivo explicito de que a publicacao oficial seguiria bloqueada.
+
+### Implementacao
+
+- Frontend (`DisciplineEditorForm`):
+  - Adicionado painel de prontidao de publicacao com diagnostico em tempo real dos bloqueios de publicacao oficial.
+  - Incluidos exemplos curtos de referencia ABNT (livro e web) ao lado do campo de referencias complementares.
+  - Apos `Salvar`, quando houver pendencias de publicacao, a UI passa a exibir aviso claro: rascunho salvo com sucesso, publicacao ainda bloqueada.
+  - Fluxo `Salvar e publicar` manteve bloqueio por validacao, agora com feedback reforcado no painel e nos campos.
+- Frontend (`DisciplineDetailsPage`):
+  - Erro do modal de publicacao passou a mapear mensagens ABNT para texto amigavel e acionavel, com exemplo e orientacao de continuidade por rascunho.
+- Backend (`ComponentDraftService`):
+  - Mensagens de erro ABNT para referencias basicas/complementares foram tornadas acionaveis com exemplo de formato esperado.
+
+### Evidencias de validacao
+
+- `ementas-app`:
+  - `npm run typecheck` concluido sem erro.
+  - `npm run test -- --run src/components/DisciplineEditorForm.test.tsx src/pages/DisciplineEditPage.test.tsx` aprovado (2/2).
+  - `npm run test -- --run src/pages/DisciplineDetailsPage.test.tsx` aprovado (9/9), incluindo caso de erro ABNT no modal.
+- `ementas-api`:
+  - `npm run typecheck` concluido sem erro.
+- Runtime local:
+  - `docker compose up -d --build api app` concluido com sucesso.
+  - `GET /api/status` retornando `{"ok":true}`.
+
+## 2026-05-11 - Correcoes de exportacao oficial, metadados de aprovacao e convite por e-mail
+
+### Problemas reportados
+
+- Metadados de aprovacao na tela de exportacao oficial aparecendo como `Nao informada`/`Nao informado` mesmo com historico existente.
+- PDF/DOCX oficial com quebra visual por renderizacao de modalidade (`Presencial`) fora do padrao esperado do template.
+- Convite por e-mail sem rastreabilidade clara entre envio real, modo mock e falha SMTP.
+
+### Implementacao
+
+- Frontend (`DisciplineDetailsPage`):
+  - Calculo de ultima aprovacao passou a usar historico consolidado (logs da disciplina + logs carregados), com deduplicacao por id, evitando falso negativo por paginação.
+- Backend (`ComponentService.export`):
+  - Exportacao oficial passou a carregar `logs.user` explicitamente na query, garantindo `Publicado por` quando houver log de aprovacao.
+  - Normalizacao da modalidade no template oficial para `Disciplina Teórico /Prática` quando aplicavel, removendo variacoes que quebravam layout no PDF.
+- Backend/App (`createTeacherByAdmin`):
+  - Fluxo agora retorna `emailDeliveryStatus` (`sent|mock|failed|disabled`) e `emailDeliveryError` para rastreabilidade operacional.
+  - UI de usuarios exibe feedback explicito para envio real, mock e falha de SMTP.
+
+### Evidencias de validacao
+
+- `ementas-api`:
+  - `npm run typecheck` concluido sem erro.
+- `ementas-app`:
+  - `npm run typecheck` concluido sem erro.
+  - `npm run test -- --run src/pages/UsersPage.test.tsx src/pages/DisciplineDetailsPage.test.tsx` aprovado (12/12).
+
+### Observacao operacional
+
+- No ambiente local atual, `MAILER_MOCK=true` e a verificacao SMTP com as credenciais atuais falha com `535-5.7.8 Username and Password not accepted` (Gmail). Portanto, envio real requer credencial valida (idealmente senha de app) e `MAILER_MOCK=false`.
+
+## 2026-05-11 - Estabilizacao do fluxo de salvar rascunho e feedback de falha na Home
+
+### Problema reportado
+
+- Apos acionar salvar no editor de disciplina, a API podia entrar em estado degradado durante autosaves/edicoes sucessivas.
+- Ao retornar para a Home, a listagem podia aparecer vazia sem mensagem clara de erro, gerando percepcao de perda de dados.
+
+### Implementacao
+
+- Backend (`ComponentDraftService`):
+  - Transacoes de `update` e `approve` passaram a usar ciclo completo de `queryRunner.connect()`, `startTransaction()`, `commit/rollback` e `release()` em `finally`.
+  - Preservacao de erros de dominio (`AppError`) no `update`, evitando mascaramento por erro generico.
+- Frontend (`DisciplineListPage`):
+  - Inclusao de estado de erro para carregamento da listagem principal e do dataset hibrido por departamento.
+  - Exibicao explicita de painel de erro na tela, substituindo estado silencioso de grid vazio quando a API falhar.
+
+### Evidencias de validacao
+
+- `ementas-api`:
+  - `npm run typecheck` concluido sem erro.
+  - Suite completa de testes depende de banco local (`ECONNREFUSED` em testes de integracao SIGAA), sem relacao direta com a mudanca aplicada.
+- `ementas-app`:
+  - `npm run test -- --run` aprovado (31/31).
+  - `npm run typecheck` concluido sem erro.
+
 ## 2026-05-06 - Padrao oficial de carga horaria (template UFBA atual)
 
 ### Decisao registrada
