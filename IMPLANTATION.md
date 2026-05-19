@@ -102,7 +102,7 @@
 
 ### Observações
  - Todo o processo de instalação dos softwares, clonagem de repositório e instalação de dependências não deve ultrapassar um tempo médio de 10 minutos. Caso esse tempo seja ultrapassado, algo deu errado e, neste caso, você deve voltar o passo e tentar novamente.
- - Em caso de dúvida, consulte um dos desenvolvedores através do email do projeto 'bdcpicufba@gmail.com'.
+ - Em caso de dúvida, consulte um dos desenvolvedores através do email do projeto 'ementasicufba@gmail.com'.
 
 ---
 
@@ -129,7 +129,7 @@
 
 ### Recuperação de Texto com Acentuação Corrompida
 1. Antes de refazer cargas do SIGAA público em uma base já utilizada, execute no backend o comando `npm run repair:encoding`.
-2. O script corrige em lote campos textuais já persistidos em `components` e `component_drafts` quando houver mojibake UTF-8 interpretado como Latin-1, como `T�f³picos` ou `P�f³s-Gradua�f§�f£o`.
+2. O script corrige em lote campos textuais já persistidos em `components` e `component_drafts` quando houver mojibake UTF-8 interpretado como Latin-1, como `T?f³picos` ou `P?f³s-Gradua?f§?f£o`.
 3. Após o reparo, execute novamente a importação pelo frontend apenas se desejar complementar disciplinas novas ainda não cadastradas.
 4. Para validação rápida, abra uma disciplina SIGAA já importada e confirme a presença correta de acentos em nome e departamento.
 
@@ -139,6 +139,46 @@
 3. Se `affectedFields` for maior que zero em alguma entidade, priorize rodar novamente `npm run repair:encoding` e revisar manualmente as amostras retornadas.
 
 ---
+
+### Storage de Arquivos (Fluxo Incremental do TCC)
+1. Não utilize Dockerfile para armazenar arquivos de runtime. O Dockerfile apenas constrói a imagem.
+2. Para persistir arquivos no servidor, use o provider local com volume Docker montado.
+3. No backend (`ementas-api/.env`), configure:
+
+```sh
+STORAGE_PROVIDER=local
+STORAGE_LOCAL_BASE_PATH=storage
+STORAGE_S3_ENABLED=false
+```
+
+4. No Docker Compose da API, use volume persistente em `/app/storage` (já previsto em `ementas-api/docker-compose.yml` com `api_storage`).
+5. Se a universidade disponibilizar storage compatível com S3, habilite o provider S3 somente quando as credenciais e endpoint estiverem homologados:
+
+```sh
+STORAGE_PROVIDER=s3
+STORAGE_S3_ENABLED=true
+STORAGE_S3_ENDPOINT=<endpoint-universidade>
+STORAGE_S3_REGION=<regiao>
+STORAGE_S3_BUCKET=<bucket>
+STORAGE_S3_ACCESS_KEY_ID=<chave>
+STORAGE_S3_SECRET_ACCESS_KEY=<segredo>
+```
+
+6. Estratégia recomendada para o TCC:
+  - curto prazo: local + volume persistente (menor risco de integração);
+  - médio prazo: trocar para S3-compatible sem alterar regra de negócio, apenas variáveis e adapter.
+7. Para o cenário real do IC (MinIO como app independente no Dokku), seguir o runbook operacional em `ementas-docs/MINIO_DOKKU_RUNBOOK_2026-05-13.md`.
+8. Para execução automatizada via CLI/SSH (sem Dokku Web), usar os scripts em `ementas-docs/ops/dokku/README.md`.
+
+### Critérios de Aceite Operacional (Storage)
+1. Reiniciar containers não pode causar perda de arquivos persistidos.
+2. Diretório de storage não deve ser versionado no Git.
+3. Aplicação deve falhar de forma explícita se `STORAGE_PROVIDER=s3` estiver definido sem habilitação/credenciais mínimas.
+4. Documentação de implantação deve refletir exatamente as variáveis ativas por ambiente.
+
+---
+
+
 
 
 

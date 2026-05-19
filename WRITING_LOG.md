@@ -1,10 +1,10 @@
-﻿# Diario de Escrita Academica (BDCP)
+﻿# Diario de Escrita Academica (EMENTAS)
 
 ## 2026-05-05 - Consolidacao do slice de crawler institucional
 
 ### Problema
 
-O fluxo de importacao institucional do BDCP precisava evoluir para capturar detalhes curriculares acionados por navegacao JSF de linha e, ao mesmo tempo, armazenar relacoes curriculares com estrutura auditavel. Sem isso, a cobertura de campos ricos permanecia limitada no processo automatizado de larga escala.
+O fluxo de importacao institucional do EMENTAS precisava evoluir para capturar detalhes curriculares acionados por navegacao JSF de linha e, ao mesmo tempo, armazenar relacoes curriculares com estrutura auditavel. Sem isso, a cobertura de campos ricos permanecia limitada no processo automatizado de larga escala.
 
 ### Justificativa tecnica
 
@@ -46,3 +46,5 @@ Foi adotada uma estratégia de fusao incremental: manter a listagem ampla como f
 ### Impacto academico
 
 O resultado transforma um requisito antes parcialmente estrutural em evidencia operacional mensuravel: houve ganho concreto na coleta rica em lote, mantendo rastreabilidade de governanca de dados e validacao em banco homologado. Permanecem lacunas de cobertura em equivalencias e co-requisitos, claramente delimitadas como trabalho incremental posterior.
+
+

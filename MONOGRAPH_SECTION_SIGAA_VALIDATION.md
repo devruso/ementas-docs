@@ -2,7 +2,7 @@
 
 ## Problema
 
-Durante a evolucao do BDCP, a importacao de componentes via SIGAA publico apresentava risco de falso positivo: tokens tecnicos do HTML (CSS/JSF/scripts) podiam ser interpretados como codigo de disciplina quando a pagina nao possuia linhas curriculares reais.
+Durante a evolucao do EMENTAS, a importacao de componentes via SIGAA publico apresentava risco de falso positivo: tokens tecnicos do HTML (CSS/JSF/scripts) podiam ser interpretados como codigo de disciplina quando a pagina nao possuia linhas curriculares reais.
 
 ## Justificativa Tecnica
 
@@ -30,7 +30,7 @@ Foi adotada estrategia fail-safe no parser SIGAA:
 ## Impacto Academico e Pratico
 
 - Reduz risco de poluicao da base oficial por importacoes espurias.
-- Reforca principio de fonte canonica: conteudo programatico oficial permanece governado no BDCP.
+- Reforca principio de fonte canonica: conteudo programatico oficial permanece governado no EMENTAS.
 - Melhora auditabilidade da etapa de importacao, permitindo demonstrar criterios de qualidade para banca do TCC.
 
 ## Bloco Curto para Monografia (Validação Visual)
@@ -41,7 +41,7 @@ Na etapa de validação visual, foi executada conferência no frontend com base 
 
 ### Problema
 
-Uma etapa crítica do BDCP consiste em demonstrar que os dados importados por rastreamento automatizado não apenas são persistidos corretamente, mas também permanecem coerentes quando exibidos na interface final utilizada para consulta institucional. Sem essa verificação visual, a avaliação poderia se limitar à camada de API, deixando aberta a possibilidade de divergência entre dado persistido e dado efetivamente apresentado ao usuário.
+Uma etapa crítica do EMENTAS consiste em demonstrar que os dados importados por rastreamento automatizado não apenas são persistidos corretamente, mas também permanecem coerentes quando exibidos na interface final utilizada para consulta institucional. Sem essa verificação visual, a avaliação poderia se limitar à camada de API, deixando aberta a possibilidade de divergência entre dado persistido e dado efetivamente apresentado ao usuário.
 
 ### Método
 
@@ -57,7 +57,7 @@ Essa validação não substitui uma medição estatística ampla de acurácia po
 
 ### Conclusão
 
-Conclui-se que a estratégia de validação visual complementa de forma relevante a validação técnica do crawler e da persistência, pois demonstra aderência entre importação, armazenamento e apresentação final no BDCP. Essa evidência fortalece a rastreabilidade entre requisito funcional, implementação e resultado observável, contribuindo para a robustez argumentativa do trabalho perante a banca.
+Conclui-se que a estratégia de validação visual complementa de forma relevante a validação técnica do crawler e da persistência, pois demonstra aderência entre importação, armazenamento e apresentação final no EMENTAS. Essa evidência fortalece a rastreabilidade entre requisito funcional, implementação e resultado observável, contribuindo para a robustez argumentativa do trabalho perante a banca.
 
 ## Limitacoes e Proximos Passos
 
@@ -66,5 +66,7 @@ Conclui-se que a estratégia de validação visual complementa de forma relevant
   1. automatizar coleta com sessao JSF para DCC/DCI/PGCOMP;
   2. gerar verdade-terreno por amostra manual estratificada;
   3. recalcular acuracia por campo em lote e publicar no plano de testes.
+
+
 
 

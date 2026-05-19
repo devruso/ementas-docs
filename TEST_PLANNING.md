@@ -31,7 +31,8 @@
 - **`should not be able to preview a draft import above file size limit`**: Para que esse teste passe, sua aplicação deve retornar código 400 quando o arquivo exceder o limite configurado de upload.
 - **`should be able to export component PDF with approval metadata when available`**: Para que esse teste passe, sua aplicação deve incluir no PDF exportado os dados de aprovação formal da disciplina quando o último log de aprovação existir.
 - **`should generate DOCX from current published component data instead of hardcoded template text`**: Para que esse teste passe, o DOCX exportado deve refletir o código, nome, departamento e demais campos oficiais da disciplina publicada, sem reutilizar conteúdo residual do modelo-base.
-- **`should not render teacher signature placeholders in official exports`**: Para que esse teste passe, a exportação oficial em DOCX/PDF não deve incluir linhas de assinatura do docente quando o documento institucional depender apenas da aprovação formal registrada.
+- **`should render teacher signature image in official exports when available`**: Para que esse teste passe, a exportação oficial em DOCX/PDF deve incorporar a imagem de assinatura do docente no parágrafo oficial de assinatura quando houver arquivo persistido no perfil; na ausência do arquivo, o placeholder textual continua como fallback.
+- **`should keep LibreOffice-friendly signature drawing markup in official DOCX`**: Para que esse teste passe, o parágrafo de assinatura do docente no DOCX oficial deve preservar atributos de contexto do parágrafo original e manter estrutura OOXML compatível com conversão (`wp14:anchorId`, `wp14:editId`, `xmlns:a`, `xmlns:pic`, `a:srcRect`, `a:ln`), evitando regressão na geração do PDF.
 - **`should persist official version code and snapshot on approval log`**: Para que esse teste passe, ao aprovar um rascunho o sistema deve registrar no log de aprovação o código de versão (`ddMMyyyy + ata`) e o snapshot oficial de ementa/conteúdo programático publicado.
 - **`should be able to get component details by code without authentication`**: Para que esse teste passe, a rota pública de detalhes por código deve retornar a disciplina publicada sem exigir token.
 - **`should return the exact draft by code even when there are similar codes`**: Para que esse teste passe, ao consultar um código de disciplina em rascunho o backend deve retornar exclusivamente a disciplina com igualdade exata case-insensitive, sem confundir com códigos semelhantes.
@@ -183,6 +184,23 @@
   - `ementas-docs/assets/validation-shared-ic0001.png`.
   - `ementas-docs/assets/validation-list-mata67.png`.
 
+## Evidência de Exportação Oficial com Assinatura Real - 2026-05-12
+
+- Contexto validado:
+  - usuário aprovador: `jamilsonj@ufba.br`;
+  - componente publicado: `IC045`;
+  - assinatura em arquivo persistida no perfil (`image/png`) antes da exportação.
+- Artefatos gerados no ciclo de validação:
+  - `ementas-api/tmp/e2e-exports/IC045-official.docx`;
+  - `ementas-api/tmp/e2e-exports/IC045-official.pdf`;
+  - evidência visual da renderização do PDF (página inicial): `ementas-docs/assets/validation-official-export-ic045-page1-2026-05-12.png`;
+  - evidência visual da assinatura do docente no artefato final (página de assinaturas): `ementas-docs/assets/validation-official-export-ic045-signature-page3-2026-05-12.png`.
+- Critérios confirmados:
+  - DOCX oficial contém mídia de assinatura (`word/media/signature-rId*.png`) e relationship de imagem correspondente;
+  - PDF oficial gerado com sucesso a partir do mesmo DOCX (header `%PDF-`);
+  - assinatura visível no bloco oficial "Docente(s) Responsável(is)... Nome: Jamilson Assinatura:" na página de assinaturas do PDF;
+  - preflight documental aprovado para o DOCX exportado.
+
 ## Pacote Visual Estratificado Para Banca - 2026-05-05
 
 - Estrato SIAC:
@@ -233,5 +251,6 @@
 - Cada unidade deve possuir amostra minima de 4 assinaturas de detalhe.
 - O parser nao pode vazar rotulos estruturais como valor de pre-requisito (ex.: `Co-Requisitos:`).
 - O teste de fallback multi-payload JSF deve permanecer verde, garantindo robustez quando ha mais de um `onclick` valido por linha.
+
 
 

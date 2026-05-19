@@ -41,3 +41,4 @@ Escopo medido nesta etapa:
 Artefato de suporte:
 - Resultado estruturado da medicao: `ementas-api/src/tests/fixtures/sigaa/accuracy-results.json`.
 
+

@@ -1,21 +1,21 @@
-# Diario de Analise Tecnica (BDCP)
+﻿# Diario de Analise Tecnica (EMENTAS)
 
 ## 2026-05-11 - Convite por e-mail com fallback sem SMTP em ambiente de desenvolvimento
 
 ### Problema reportado
 
-- Fluxo de convite e envio de credenciais ficava dependente de SMTP configurado, bloqueando operação local quando credenciais não estavam válidas.
+- Fluxo de convite e envio de credenciais ficava dependente de SMTP configurado, bloqueando operaÃ§Ã£o local quando credenciais nÃ£o estavam vÃ¡lidas.
 
 ### Implementacao
 
 - Backend (`MailerService`):
-  - Mantido modo explícito `MAILER_MOCK=true`.
-  - Adicionado fallback automático para mock quando `MAILER_USER`/`MAILER_PASSWORD` não estão definidos.
-  - Em fallback, o backend registra conteúdo do e-mail em log e não interrompe o fluxo de criação/convite.
+  - Mantido modo explÃ­cito `MAILER_MOCK=true`.
+  - Adicionado fallback automÃ¡tico para mock quando `MAILER_USER`/`MAILER_PASSWORD` nÃ£o estÃ£o definidos.
+  - Em fallback, o backend registra conteÃºdo do e-mail em log e nÃ£o interrompe o fluxo de criaÃ§Ã£o/convite.
 - Backend (`UserService.createTeacherByAdmin`):
-  - `emailDeliveryStatus` passa a refletir o modo real retornado pelo `Mailer` (`sent` ou `mock`), sem inferência indireta por variável de ambiente.
-- Documentação (`ementas-api/README.md`):
-  - Seção de mailer atualizada para deixar explícito que SMTP é opcional em desenvolvimento.
+  - `emailDeliveryStatus` passa a refletir o modo real retornado pelo `Mailer` (`sent` ou `mock`), sem inferÃªncia indireta por variÃ¡vel de ambiente.
+- DocumentaÃ§Ã£o (`ementas-api/README.md`):
+  - SeÃ§Ã£o de mailer atualizada para deixar explÃ­cito que SMTP Ã© opcional em desenvolvimento.
 
 ### Evidencias de validacao
 
@@ -87,10 +87,10 @@
 ### Implementacao
 
 - Frontend (`DisciplineDetailsPage`):
-  - Calculo de ultima aprovacao passou a usar historico consolidado (logs da disciplina + logs carregados), com deduplicacao por id, evitando falso negativo por paginação.
+  - Calculo de ultima aprovacao passou a usar historico consolidado (logs da disciplina + logs carregados), com deduplicacao por id, evitando falso negativo por paginaÃ§Ã£o.
 - Backend (`ComponentService.export`):
   - Exportacao oficial passou a carregar `logs.user` explicitamente na query, garantindo `Publicado por` quando houver log de aprovacao.
-  - Normalizacao da modalidade no template oficial para `Disciplina Teórico /Prática` quando aplicavel, removendo variacoes que quebravam layout no PDF.
+  - Normalizacao da modalidade no template oficial para `Disciplina TeÃ³rico /PrÃ¡tica` quando aplicavel, removendo variacoes que quebravam layout no PDF.
 - Backend/App (`createTeacherByAdmin`):
   - Fluxo agora retorna `emailDeliveryStatus` (`sent|mock|failed|disabled`) e `emailDeliveryError` para rastreabilidade operacional.
   - UI de usuarios exibe feedback explicito para envio real, mock e falha de SMTP.
@@ -198,24 +198,24 @@
   - presenca da linha de assinatura do chefe
   - leitura Mammoth registrada como check opcional (pode retornar limitacao da lib para alguns documentos complexos sem invalidar o DOCX).
 
-## 2026-05-05 - Correção de nível acadêmico e exportação DOCX com template base
+## 2026-05-05 - CorreÃ§Ã£o de nÃ­vel acadÃªmico e exportaÃ§Ã£o DOCX com template base
 
 ### Problemas reportados
 
-- Filtro de nível acadêmico sem resultados em mestrado/doutorado por importação inicial concentrada em graduação.
-- Exportação DOCX com perda de identidade visual por geração via HTML, divergindo do modelo Word institucional.
+- Filtro de nÃ­vel acadÃªmico sem resultados em mestrado/doutorado por importaÃ§Ã£o inicial concentrada em graduaÃ§Ã£o.
+- ExportaÃ§Ã£o DOCX com perda de identidade visual por geraÃ§Ã£o via HTML, divergindo do modelo Word institucional.
 
-### Implementação
+### ImplementaÃ§Ã£o
 
-- Importação SIGAA passou a aceitar `academicLevel=all` no backend e no frontend.
-- Fluxo `all` ganhou suporte a `sourceIdsByLevel` (IDs distintos para graduação/mestrado/doutorado), permitindo carga geral real por nível.
-- Exportação DOCX foi migrada para preenchimento direto do `UFBA_TEMPLATE.docx` (substituição de conteúdo no XML do documento), preservando estrutura e formatação base do Word.
+- ImportaÃ§Ã£o SIGAA passou a aceitar `academicLevel=all` no backend e no frontend.
+- Fluxo `all` ganhou suporte a `sourceIdsByLevel` (IDs distintos para graduaÃ§Ã£o/mestrado/doutorado), permitindo carga geral real por nÃ­vel.
+- ExportaÃ§Ã£o DOCX foi migrada para preenchimento direto do `UFBA_TEMPLATE.docx` (substituiÃ§Ã£o de conteÃºdo no XML do documento), preservando estrutura e formataÃ§Ã£o base do Word.
 
-### Evidências locais
+### EvidÃªncias locais
 
-- API em execução local via Docker com migração aplicada.
-- Exportação DOCX validada com preservação do cabeçalho institucional e substituição dos dados do componente (sem textos fixos do template de exemplo).
-- Importação multi-fonte por nível validada: `mestrado` populado localmente; `doutorado` depende de fonte SIGAA com oferta disponível.
+- API em execuÃ§Ã£o local via Docker com migraÃ§Ã£o aplicada.
+- ExportaÃ§Ã£o DOCX validada com preservaÃ§Ã£o do cabeÃ§alho institucional e substituiÃ§Ã£o dos dados do componente (sem textos fixos do template de exemplo).
+- ImportaÃ§Ã£o multi-fonte por nÃ­vel validada: `mestrado` populado localmente; `doutorado` depende de fonte SIGAA com oferta disponÃ­vel.
 
 ## 2026-05-05 - Execucao do slice de migracao de referencias estruturadas
 
@@ -240,28 +240,28 @@
 
 ### Objetivo da analise
 
-- Tornar explícito no produto que o preenchimento oficial segue o template institucional (independente de SIGAA/SIAC).
-- Garantir cobertura de campos críticos para publicação oficial, com ênfase em Referências.
-- Melhorar consistência entre editor, visualização e exportação (PDF/DOCX).
+- Tornar explÃ­cito no produto que o preenchimento oficial segue o template institucional (independente de SIGAA/SIAC).
+- Garantir cobertura de campos crÃ­ticos para publicaÃ§Ã£o oficial, com Ãªnfase em ReferÃªncias.
+- Melhorar consistÃªncia entre editor, visualizaÃ§Ã£o e exportaÃ§Ã£o (PDF/DOCX).
 
 ### Decisoes implementadas
 
 - Editor passou a separar `Referencias basicas` e `Referencias complementares` no frontend.
-- Publicação via editor passou a validar campos essenciais do template: ementa, objetivos, conteúdo programático, metodologia, avaliação da aprendizagem e referências básicas.
-- Fluxo de edição (`DisciplineEditPage`) recebeu autopreenchimento de data de aprovação (data atual) e sugestão automática de número de ATA.
-- Modal de aprovação ganhou orientação explícita: assinatura de aprovação não é senha e pode ser configurada na página de perfil.
-- Template de exportação deixou de duplicar bibliografia e passou a separar referências básicas/complementares por parsing estruturado do campo armazenado.
-- Texto de aprovação no template foi neutralizado para "sistema institucional", removendo citação direta ao BDCP.
+- PublicaÃ§Ã£o via editor passou a validar campos essenciais do template: ementa, objetivos, conteÃºdo programÃ¡tico, metodologia, avaliaÃ§Ã£o da aprendizagem e referÃªncias bÃ¡sicas.
+- Fluxo de ediÃ§Ã£o (`DisciplineEditPage`) recebeu autopreenchimento de data de aprovaÃ§Ã£o (data atual) e sugestÃ£o automÃ¡tica de nÃºmero de ATA.
+- Modal de aprovaÃ§Ã£o ganhou orientaÃ§Ã£o explÃ­cita: assinatura de aprovaÃ§Ã£o nÃ£o Ã© senha e pode ser configurada na pÃ¡gina de perfil.
+- Template de exportaÃ§Ã£o deixou de duplicar bibliografia e passou a separar referÃªncias bÃ¡sicas/complementares por parsing estruturado do campo armazenado.
+- Texto de aprovaÃ§Ã£o no template foi neutralizado para "sistema institucional", removendo citaÃ§Ã£o direta ao EMENTAS.
 
 ### Evidencia tecnica coletada
 
-- Não foram detectados erros estáticos nos arquivos alterados (checagem por arquivo no editor).
+- NÃ£o foram detectados erros estÃ¡ticos nos arquivos alterados (checagem por arquivo no editor).
 - Estrutura de payload da API foi preservada (continua usando `bibliography`), evitando breaking change.
 
 ### Risco residual aberto
 
-- Migração futura recomendada: separar referências básicas/complementares em colunas próprias no backend para eliminar necessidade de parsing textual.
-- Testes automatizados específicos desse slice (formulário + template parser) ainda podem ser adicionados para regressão de borda.
+- MigraÃ§Ã£o futura recomendada: separar referÃªncias bÃ¡sicas/complementares em colunas prÃ³prias no backend para eliminar necessidade de parsing textual.
+- Testes automatizados especÃ­ficos desse slice (formulÃ¡rio + template parser) ainda podem ser adicionados para regressÃ£o de borda.
 
 ## 2026-05-05 - Slice JSF de detalhe + persistencia estruturada
 
@@ -324,10 +324,11 @@
 
 ### Evidencia de homologacao (migration + leitura real)
 
-- Migration executada com variaveis de homologacao local (`DB_HOST=localhost`, `DB_PORT=15432`, `DB_NAME=bdcp`):
+- Migration executada com variaveis de homologacao local (`DB_HOST=localhost`, `DB_PORT=15432`, `DB_NAME=ementas`):
   - `addComponentRelationsTable1772528400000` aplicada com sucesso.
 - Leitura real em banco homologado local via `psql`:
   - `components_count`: 37
   - insercao controlada de relacao (`HMLTEST01`) retornou `INSERT 0 1`
   - consulta de leitura retornou registro com `component_code=MATA67`, `relation_type=co_requisite`, `related_code=HMLTEST01`
   - limpeza tecnica executada em seguida (`DELETE 1`).
+

@@ -23,10 +23,10 @@
 - Pre-requisitos agora seguem classificacao operacional no frontend (existente, pendente e nao se aplica), com selecao automatica por disciplinas publicadas e rascunhos; no backend, codigos sao normalizados e autorreferencia continua bloqueada.
 - Gestao de usuarios atualizada com endpoint administrativo de criacao direta de professor, com senha provisoria segura gerada no backend e envio opcional de credenciais via SMTP institucional.
 - Governanca de perfis evoluida com papel `SUPER_ADMIN` formal (compativel com `admin` atual), incluindo endpoint de alteracao de role protegido por super administracao.
-- Publicacao oficial com politica de assinatura obrigatoria: aprovacao de rascunho agora valida assinatura configurada no perfil, sem incluir assinatura nos artefatos DOCX/PDF exportados.
+- Publicacao oficial com politica de assinatura obrigatoria: aprovacao de rascunho agora valida assinatura configurada no perfil e, quando houver arquivo de imagem, incorpora a assinatura do docente no local oficial do artefato DOCX/PDF exportado.
 - Publicacao global irrestrita removida para consulta de disciplinas e rascunhos; acesso publico agora ocorre por compartilhamento temporario com token, expiracao e revogacao.
 - Painel de disciplinas evoluido com governanca operacional de compartilhamento: listagem de links publicos ativos por disciplina, revogacao unitaria e revogacao em massa no proprio app.
-- Crawler evoluido para SIGAA publico (departamento/programa) com classificacao por nivel academico (`graduacao`, `mestrado`, `doutorado`), preservando o conteudo programatico como fonte canonica do BDCP.
+- Crawler evoluido para SIGAA publico (departamento/programa) com classificacao por nivel academico (`graduacao`, `mestrado`, `doutorado`), preservando o conteudo programatico como fonte canonica do EMENTAS.
 - Parser do crawler SIGAA refinado com regressao offline baseada em HTML real: eliminacao de falsos positivos por ruído tecnico (tokens CSS/JSF) e fallback de URLs por tipo de fonte (`department`/`program`).
 - Descoberta de fonte/IDs via fluxo JSF concluida para DCC (`1114`), DCI (`2440`) e PGCOMP (`1820`), com matriz de casos reais e relatorio final de acuracia para banca.
 - Resumo executivo para slides da defesa, com tabela consolidada e grafico de acuracia: `SIGAA_ACCURACY_SLIDES_2026-05-05.md`.
@@ -50,7 +50,7 @@
 
 #### Problema
 
-O BDCP apresentava dois tipos distintos de necessidade evolutiva. No backend, havia divergencia entre o diagnostico do editor e a resolucao real de modulos do TypeScript, produzindo ruido operacional no desenvolvimento. No frontend, a cobertura funcional precisava avancar em aspectos centrais de governanca academica, especialmente na administracao de perfis privilegiados, na formalizacao da aprovacao de alteracoes de disciplinas e na disponibilizacao controlada de conteudo oficial para acesso publico temporario.
+O EMENTAS apresentava dois tipos distintos de necessidade evolutiva. No backend, havia divergencia entre o diagnostico do editor e a resolucao real de modulos do TypeScript, produzindo ruido operacional no desenvolvimento. No frontend, a cobertura funcional precisava avancar em aspectos centrais de governanca academica, especialmente na administracao de perfis privilegiados, na formalizacao da aprovacao de alteracoes de disciplinas e na disponibilizacao controlada de conteudo oficial para acesso publico temporario.
 
 #### Decisao Tecnica
 
@@ -62,7 +62,7 @@ As mudancas foram publicadas em commits distintos e semanticamente coerentes. O 
 
 #### Impacto Academico
 
-O resultado amplia a robustez do sistema, melhora a auditabilidade das operacoes administrativas e reforca a aderencia do BDCP ao contexto institucional do TCC. Em especial, a introducao de governanca por perfil privilegiado, de validacao explicita para aprovacao oficial e de compartilhamento publico temporario fortalece a confiabilidade do processo academico sem transferir regras criticas para a interface.
+O resultado amplia a robustez do sistema, melhora a auditabilidade das operacoes administrativas e reforca a aderencia do EMENTAS ao contexto institucional do TCC. Em especial, a introducao de governanca por perfil privilegiado, de validacao explicita para aprovacao oficial e de compartilhamento publico temporario fortalece a confiabilidade do processo academico sem transferir regras criticas para a interface.
 
 ## Operacao do Endpoint de Importacao SIGAA Publico
 
@@ -109,7 +109,7 @@ Campos aceitos:
 Interpretacao operacional:
 - `requested`: total de disciplinas identificadas na fonte consultada
 - `created`: total efetivamente inserido
-- `skippedExisting`: total ignorado por ja existir no BDCP
+- `skippedExisting`: total ignorado por ja existir no EMENTAS
 - `failed`: total com falha de processamento
 - `failures`: lista de falhas por codigo para auditoria
 
@@ -118,5 +118,7 @@ Interpretacao operacional:
 - `400`: parametros obrigatorios ausentes ou invalidos
 - `401`: usuario autenticado sem permissao administrativa para importacao
 - `404`: nenhuma disciplina encontrada na fonte SIGAA informada
+
+
 
 

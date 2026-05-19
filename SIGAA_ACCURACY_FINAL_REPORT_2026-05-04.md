@@ -1,7 +1,7 @@
 ﻿# Relatorio Final de Acuracia - Crawler SIGAA Publico
 
 Data de consolidacao: 2026-05-04  
-Projeto: BDCP (TCC)  
+Projeto: EMENTAS (TCC)  
 Objetivo: apresentar evidencias reais de descoberta de fonte, acuracia por campo e prontidao para banca.
 
 ## 1) Escopo e Metodo
@@ -37,10 +37,10 @@ Base medida: 15 amostras estratificadas (5 DCC, 5 DCI, 5 PGCOMP).
 
 | Campo | Visual |
 |---|---|
-| code | `�-^�-^�-^�-^�-^�-^�-^�-^�-^�-^ 100%` |
-| name | `�-^�-^�-^�-^�-^�-^�-^�-^�-^�-^ 100%` |
-| department | `�-^�-^�-^�-^�-^�-^�-^�-^�-^�-^ 100%` |
-| academicLevel | `�-^�-^�-^�-^�-^�-^�-^�-^�-^�-^ 100%` |
+| code | `?-^?-^?-^?-^?-^?-^?-^?-^?-^?-^ 100%` |
+| name | `?-^?-^?-^?-^?-^?-^?-^?-^?-^?-^ 100%` |
+| department | `?-^?-^?-^?-^?-^?-^?-^?-^?-^?-^ 100%` |
+| academicLevel | `?-^?-^?-^?-^?-^?-^?-^?-^?-^?-^ 100%` |
 
 ## 4) Ajustes Tecnicos que Viabilizaram o Resultado
 
@@ -66,11 +66,11 @@ Base medida: 15 amostras estratificadas (5 DCC, 5 DCI, 5 PGCOMP).
 - Recomendacao de continuidade:
   1. ampliar amostra estratificada para outros institutos e niveis;
   2. incluir validacao de mudancas de layout do SIGAA em monitoramento periodico;
-  3. manter conteudo programatico como fonte canonica no BDCP para publicacao oficial.
+  3. manter conteudo programatico como fonte canonica no EMENTAS para publicacao oficial.
 
-## 7) Equivalencia de Campos SIGAA x BDCP (Atualizado)
+## 7) Equivalencia de Campos SIGAA x EMENTAS (Atualizado)
 
-| Origem SIGAA | Campo SIGAA | Campo BDCP | Status atual | Regra de mapeamento |
+| Origem SIGAA | Campo SIGAA | Campo EMENTAS | Status atual | Regra de mapeamento |
 |---|---|---|---|---|
 | Listagem publica (`busca_componentes`) | Codigo | `Component.code` | Implementado | Extracao por regex, com normalizacao para codigos com prefixo de programa (`PGCOMP/IC0032` -> `IC0032`). |
 | Listagem publica (`busca_componentes`) | Nome | `Component.name` | Implementado | Captura da coluna textual principal da linha de componente. |
@@ -190,5 +190,7 @@ As tres acoes do proximo slice foram executadas:
 Resultado observado na baseline final: a cobertura rica em lote institucional permaneceu zero para campos de detalhe, indicando que o fluxo amplo ainda nao recebeu endpoint de detalhe efetivo no HTML processado nesta varredura.
 
 Interpretacao: houve fechamento de infraestrutura e governanca de dados, com lacuna residual de integracao para enriquecimento massivo por detalhe em todos os cursos/unidades.
+
+
 
 

@@ -1,4 +1,4 @@
-﻿# GAP Analysis BDCP - 2026-04-23
+﻿# GAP Analysis EMENTAS - 2026-04-23
 
 ## Scope
 - Requirements baseline: `ementas-docs/REQUIREMENTS.md`
@@ -47,7 +47,7 @@
 ### Monograph-Oriented Narrative
 
 #### Problem
-The BDCP evolution exposed two relevant classes of technical limitation. The first was a tooling inconsistency in the backend, where the editor reported a dependency resolution failure that did not reproduce in the project compiler. The second was a functional gap in the frontend concerning academic governance, especially privileged profile administration, formal approval validation, and controlled public exposure of official discipline data.
+The EMENTAS evolution exposed two relevant classes of technical limitation. The first was a tooling inconsistency in the backend, where the editor reported a dependency resolution failure that did not reproduce in the project compiler. The second was a functional gap in the frontend concerning academic governance, especially privileged profile administration, formal approval validation, and controlled public exposure of official discipline data.
 
 #### Technical Decision
 The adopted strategy was to keep the evolution incremental and traceable. A narrow infrastructure fix was isolated in the backend to remove TypeScript module resolution ambiguity. Separately, a functional frontend slice was consolidated to strengthen institutional governance rules through `SUPER_ADMIN`, require signature-backed approval for official publication, and constrain public access through temporary share links instead of unrestricted exposure.
@@ -142,10 +142,12 @@ This slice improves robustness, governance explicitness, and implementation audi
 
 ## Monograph Notes
 - Problem statement candidate:
-  - "The current BDCP implementation has broad functional coverage, but authorization boundaries in critical governance operations are under-specified."
+  - "The current EMENTAS implementation has broad functional coverage, but authorization boundaries in critical governance operations are under-specified."
 - Technical decision candidate:
   - "Prioritize authorization hardening and requirement traceability before broad dependency modernization to reduce regression and security risk."
 - Expected impact:
   - "Improved robustness, explicit governance, and stronger alignment between documented requirements and implemented behavior."
+
+
 
 

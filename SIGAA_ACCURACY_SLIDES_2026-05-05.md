@@ -49,3 +49,4 @@ xychart-beta
 - Relatorio final: ementas-docs/SIGAA_ACCURACY_FINAL_REPORT_2026-05-04.md
 - Resultado estruturado (JSON): ementas-api/src/tests/fixtures/sigaa/accuracy-results.json
 
+

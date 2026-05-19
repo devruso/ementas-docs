@@ -1,6 +1,6 @@
 ﻿# Matriz Final de Cobertura Rica por Campo - 2026-05-05
 
-Projeto: BDCP (TCC)  
+Projeto: EMENTAS (TCC)  
 Data de execucao: 2026-05-05  
 Arquivo de baseline canônico: `ementas-api/src/tests/fixtures/sigaa/full-catalog-results.2026-05-05.prd-final.json`
 
@@ -61,4 +61,6 @@ Arquivo de saida consolidado:
 	- ao menos 2 ciclos de captura;
 	- unidades obrigatorias por ciclo: `department-1114`, `department-2440`, `program-1820`;
 	- minimo de 4 assinaturas por unidade em cada ciclo.
+
+
 
