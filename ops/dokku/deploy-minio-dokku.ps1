@@ -111,8 +111,8 @@ if (-not [string]::IsNullOrWhiteSpace($ConsoleDomain)) {
 }
 Invoke-Remote "dokku config:set --no-restart $AppName $(Build-ConfigPair -Key 'DOKKU_PROXY_PORT_MAP' -Value $portMap)"
 
-# Persistencia: suporte IC informou disponibilidade em /app/storage no host.
-Invoke-Remote "dokku storage:mount $AppName ${HostStoragePath}:/data" -AllowFail | Out-Null
+# Persistencia: suporte IC informou disponibilidade em /app/storage no container MinIO.
+Invoke-Remote "dokku storage:mount $AppName ${HostStoragePath}:/app/storage" -AllowFail | Out-Null
 
 $templatePath = Join-Path $PSScriptRoot "minio-template"
 if (-not (Test-Path $templatePath)) {
@@ -156,6 +156,6 @@ Write-Host "S3 endpoint: https://$S3Domain"
 if (-not [string]::IsNullOrWhiteSpace($ConsoleDomain)) {
     Write-Host "Console endpoint: https://$ConsoleDomain"
 }
-Write-Host "Storage host mount: $HostStoragePath -> /data"
+Write-Host "Storage host mount: $HostStoragePath -> /app/storage"
 
 
