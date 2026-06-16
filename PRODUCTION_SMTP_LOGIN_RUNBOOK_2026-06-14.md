@@ -72,6 +72,10 @@ MAILER_HOST=smtp.gmail.com
 MAILER_PORT=587
 MAILER_SECURE=false
 MAILER_TLS_REJECT_UNAUTHORIZED=false
+MAILER_REQUIRE_TLS=false
+MAILER_CONNECTION_TIMEOUT_MS=10000
+MAILER_GREETING_TIMEOUT_MS=10000
+MAILER_SOCKET_TIMEOUT_MS=15000
 MAILER_USER=ementas.ic.ufba@gmail.com
 MAILER_PASSWORD=<gmail-app-password>
 MAILER_FROM_NAME=EMENTAS IC UFBA
@@ -151,6 +155,19 @@ Observacoes:
 
 - Use App Password do Gmail; nao use a senha comum da conta.
 - Se `MAILER_MOCK=true`, o backend continua sem enviar e-mail real.
+- O endpoint de convite por e-mail agora retorna `emailDeliveryStatus=failed` com `emailDeliveryError` quando o SMTP falhar, mantendo o link de convite para compartilhamento manual.
+- Recuperacao de senha nao revela mais se o e-mail existe no banco, reduzindo enumeracao de contas.
+
+## Atualizacao 2026-06-16 (producao)
+
+- Exclusao de usuario endurecida: apenas `SUPER_ADMIN` pode remover contas.
+- Autoexclusao bloqueada para evitar perda de governanca.
+- Exclusao aplica `is_deleted=true` e `is_user_active=false` (soft delete).
+- Lista de usuarios nao exclui mais automaticamente o usuario autenticado, facilitando auditoria de perfis.
+- Convite e recuperacao de senha com e-mail HTML (UTF-8), botao de acao e identidade visual do IC.
+- Backend de convite agora envia `text + html` e preserva fallback para compartilhamento manual do link quando o SMTP falha.
+- Ajuste no importador SIGAA: em `academicLevel=all`, o backend aceita IDs por nivel (`sourceIdsByLevel`) sem exigir `sourceId` global.
+- Favicon reforcado no frontend com `icon`, `shortcut icon` e `apple-touch-icon` com cache-busting.
 
 ## O que ainda falta para uso real em producao
 
