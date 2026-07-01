@@ -73,3 +73,14 @@
 - Captura visual da renderizacao do PDF: `ementas-docs/assets/validation-official-export-ic045-page1-2026-05-12.png`.
 - Captura visual da pagina com assinatura do docente: `ementas-docs/assets/validation-official-export-ic045-signature-page3-2026-05-12.png`.
 
+## Evidencias operacionais (Dokku, 2026-07-01)
+- Deploy realizado para `ementas-api` via `git push dokku main` com build e healthchecks concluídos.
+- Commit implantado: `2574101` (`chore: log bootstrap skip when auto import is disabled`).
+- Evidência de runtime após deploy:
+  - `DB connection is UP? true`
+  - `[startup-bootstrap] skipped: BOOTSTRAP_IMPORT_ON_EMPTY_DB is not true.`
+  - `Server running on PORT 3333`
+- Teste de importação manual via endpoint iniciado e bloqueado por autenticação:
+  - `POST /api/auth/login` retornou `400 Incorrect username and/or password. Please try again!`
+  - Sem token válido, não foi possível registrar `summary` do endpoint `POST /api/components/import/sigaa-public` neste ciclo.
+
