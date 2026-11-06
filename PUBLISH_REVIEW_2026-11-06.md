@@ -73,3 +73,23 @@ Revisao dos tres repositorios Git encontrados no workspace: `ementas-app`, `emen
 ## Publicacao e deploy
 
 O envio destes commits ao GitHub nao executa deploy direto no Dokku. Para um deploy posterior da API, considerar a migration automatica no startup, a retencao do historico e a ausencia de backfill. Redis e opcional. O deploy da correcao de senha no frontend pode ocorrer independentemente da nova funcionalidade de historico da API.
+
+## Auditoria de dependencias apos o push
+
+O push dos tres repositorios foi aceito. A resposta do GitHub para a API informou 23 alertas de dependencias (4 altos, 17 moderados e 2 baixos). Foi executado tambem `npm audit --json` para registrar uma verificacao atual do lockfile:
+
+| Severidade | Pacotes afetados no npm audit |
+| --- | ---: |
+| Critica | 2 |
+| Alta | 53 |
+| Moderada | 4 |
+| Baixa | 15 |
+| Total | 74 |
+
+Os pacotes classificados como criticos sao `typeorm` (dependencia direta) e `proxy-addr` (transitiva). As contagens do npm audit e dos alertas do GitHub sao distintas; nao representam a mesma quantidade de vulnerabilidades independentes.
+
+A comparacao do lockfile com `c224693` confirmou 12 pacotes novos ligados ao cache Redis e nenhuma alteracao de versao dos pacotes existentes. Nenhum desses 12 nomes aparece na lista de pacotes afetados retornada pelo audit. Os alertas encontrados pertencem, portanto, a versoes que ja estavam no lockfile antes desta sessao.
+
+Esta e uma pendencia real para revisao de dependencias antes de considerar a API pronta para um novo deploy. Nao foi aplicado `npm audit fix`: atualizacoes e eventuais trocas de versao principal precisam de validacao propria. O passo `npm audit` da workflow existente tambem pode impedir a CI/deploy legado.
+
+Ao terminar os testes, o PostgreSQL temporario foi encerrado e os dados temporarios desta revisao foram removidos. Os bancos existentes e a configuracao de producao nao foram alterados.
