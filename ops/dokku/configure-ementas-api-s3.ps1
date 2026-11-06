@@ -32,9 +32,16 @@ function Build-ConfigPair {
 }
 
 function Invoke-Remote {
-    param([Parameter(Mandatory = $true)] [string] $Command)
+    param(
+        [Parameter(Mandatory = $true)] [string] $Command,
+        [switch] $Sensitive
+    )
 
-    Write-Host ">> SSH: $Command" -ForegroundColor Cyan
+    if ($Sensitive) {
+        Write-Host ">> SSH: aplicando configuracao S3 (valores ocultos)" -ForegroundColor Cyan
+    } else {
+        Write-Host ">> SSH: $Command" -ForegroundColor Cyan
+    }
     $attempts = @(
         "bash -lc '$Command'",
         $Command
@@ -46,7 +53,12 @@ function Invoke-Remote {
 
     $exitCode = 1
     foreach ($attempt in $attempts) {
-        & ssh "$DokkuUser@$DokkuHost" $attempt
+        if ($Sensitive) {
+            # Dokku can echo configured values too; suppress remote output for this command.
+            & ssh "$DokkuUser@$DokkuHost" $attempt *> $null
+        } else {
+            & ssh "$DokkuUser@$DokkuHost" $attempt
+        }
         $exitCode = $LASTEXITCODE
 
         if ($exitCode -eq 0) {
@@ -67,7 +79,8 @@ $pairs = @(
     (Build-ConfigPair -Key "STORAGE_S3_BUCKET" -Value $S3Bucket),
     (Build-ConfigPair -Key "STORAGE_S3_ACCESS_KEY_ID" -Value $S3AccessKeyId),
     (Build-ConfigPair -Key "STORAGE_S3_SECRET_ACCESS_KEY" -Value $S3SecretAccessKey),
-    (Build-ConfigPair -Key "STORAGE_S3_FORCE_PATH_STYLE" -Value $S3ForcePathStyle)
+    (Build-ConfigPair -Key "STORAGE_S3_FORCE_PATH_STYLE" -Value $S3ForcePathStyle),
+    (Build-ConfigPair -Key "STORAGE_S3_AUTO_CREATE_BUCKET" -Value "false")
 )
 
 if (-not [string]::IsNullOrWhiteSpace($S3PublicBaseUrl)) {
@@ -75,7 +88,7 @@ if (-not [string]::IsNullOrWhiteSpace($S3PublicBaseUrl)) {
 }
 
 $joined = ($pairs -join " ")
-Invoke-Remote "dokku config:set --no-restart $ApiAppName $joined"
+Invoke-Remote "dokku config:set --no-restart $ApiAppName $joined" -Sensitive
 Invoke-Remote "dokku ps:restart $ApiAppName"
 
 Write-Host "Configuracao S3 aplicada na API $ApiAppName" -ForegroundColor Green
