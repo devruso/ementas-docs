@@ -1,5 +1,148 @@
 ﻿# Diario de Analise Tecnica (EMENTAS)
 
+## 2026-07-13 - Ajustes de UX solicitados pelo orientador (login, recuperação, listagem pública e departamentos)
+
+### Problema reportado
+
+- Excesso de elementos visuais (badges/chips) em telas de entrada e cadastro de disciplina.
+- Placeholder e orientação de domínio institucional não explícitos o suficiente no fluxo de autenticação/recuperação.
+- Mensagem de sucesso da recuperação desalinhada com texto aprovado pelo orientador.
+- Imagens de logo quebradas no frontend e em templates de e-mail.
+- E-mail de recuperação sem link explícito de acesso ao sistema.
+- Listagem pública com contador de resultados em posição inadequada e seletor "Itens por página" no rodapé.
+- Necessidade de abrir listagem pública já focada no DCC e com opção rápida para Computação Interdisciplinar.
+- Percepção de que o botão "Editar" em departamentos não acionava fluxo claro.
+
+### Implementacao
+
+- Frontend (`ementas-app`):
+  - `LoginPage`:
+    - removidos badges visuais de ruído;
+    - adicionado placeholder `suaconta@ufba.br`;
+    - adicionada orientação em vermelho: `Apenas conta @ufba.br.`.
+  - `ForgotPasswordPage`:
+    - copy simplificada;
+    - placeholder `suaconta@ufba.br`;
+    - orientação em vermelho `Apenas conta @ufba.br.`;
+    - mensagem de sucesso atualizada para: `Se sua conta existir, você receberá uma nova senha no e-mail informado.`.
+  - `DisciplineCreatePage`:
+    - removidos chips `Cadastro completo`, `Importação SIAC` e `Importação SIGAA público` para visual mais clean.
+  - `AuthLayout` e `AppShell`:
+    - logo migrada para asset local estável (`/computacao-logo.png`) para eliminar imagem quebrada.
+  - `DisciplineListPage`:
+    - ordenação inicial alterada para alfabética (`name`, `ASC`);
+    - filtro de departamento fixado para DCC como padrão e opção DCI;
+    - contador de resultados removido da área de filtros;
+    - seletor `Itens por página` movido para o cabeçalho da listagem.
+  - `DepartmentsPage`:
+    - ao clicar em `Editar`, a tela rola automaticamente para o formulário;
+    - adicionado aviso de `Modo edição ativo` para tornar o estado explícito.
+- Backend (`ementas-api`):
+  - `ComponentService.getComponents`:
+    - suporte a presets de departamento `__dcc__` e `__dci__` sem quebrar filtro textual legado.
+  - `emailTemplates`:
+    - logo de e-mail migrada para URL estável configurável;
+    - template de recuperação passou a incluir botão e link direto para acesso ao sistema.
+
+### Evidencias de validacao
+
+- `ementas-app`:
+  - `npm run typecheck` concluido sem erros.
+  - `npm run test:run -- src/pages/LoginPage.test.tsx src/pages/ForgotPasswordPage.test.tsx src/pages/DisciplineListPage.test.tsx src/pages/DisciplineCreatePage.test.tsx` aprovado (8/8).
+- `ementas-api`:
+  - `npm run typecheck` concluido sem erros.
+  - `npm test -- src/tests/EmailTemplates.spec.ts` aprovado (1/1).
+
+## 2026-07-02 - Vinculo de departamentos no backend, indexacao e upgrade visual da listagem publica
+
+### Problema reportado
+
+- Tela administrativa de departamentos retornando `Route not found.` em producao.
+- Ausencia de relacionamento formal de departamentos com `components` e `component_drafts`.
+- Necessidade de indexacao para consultas administrativas e filtros com melhor desempenho.
+- Percepcao de UX "nao premium" na listagem publica de disciplinas.
+- Dificuldade para identificar rapidamente variaveis de ambiente necessarias ao scraping/bootstrap SIGAA.
+
+### Implementacao
+
+- Backend (`ementas-api`):
+  - Criado modulo completo de departamentos:
+    - Entidade: `Department`.
+    - Repositorio: `DepartmentRepository`.
+    - Service: `DepartmentService` (listar, criar, atualizar, remover, sincronizar relacoes).
+    - Controller: `DepartmentController`.
+    - Router protegido: `DepartmentRouter` com `ensureAuthenticated + ensureAdminAuthenticated`.
+  - Rotas registradas em `src/routes.ts`: `GET/POST/PUT/DELETE /api/departments`.
+  - Adicionado relacionamento opcional via FK em `components.department_id` e `component_drafts.department_id`.
+  - Mantida compatibilidade retroativa com campo textual `department` (sem quebra de contrato).
+  - Nova migration `1780900000000-addDepartmentsModule.ts` com:
+    - criacao de tabela `departments`;
+    - indices para busca/ordenacao;
+    - indice unico normalizado por nome e codigo;
+    - FKs para `components` e `component_drafts`;
+    - backfill automatico de departamentos existentes e vinculacao por nome.
+- Frontend (`ementas-app`):
+  - `DisciplineListPage` recebeu modo de visualizacao alternavel (`Cards` e `Tabela`).
+  - Novo layout em cards com hierarquia visual mais forte para codigo, semestre, resumo e CTA.
+  - Mantidos filtros, ordenacao, paginação e navegacao existentes.
+
+### Variaveis de ambiente validadas para scraping/bootstrap SIGAA
+
+- Chaves obrigatorias para bootstrap automatico em base vazia:
+  - `BOOTSTRAP_IMPORT_ON_EMPTY_DB=true`
+  - `BOOTSTRAP_IMPORT_SOURCE=sigaa-public`
+  - `BOOTSTRAP_SIGAA_SOURCE_TYPE=department|program`
+  - `BOOTSTRAP_SIGAA_SOURCE_ID=<id_da_fonte>`
+  - `BOOTSTRAP_SIGAA_ACADEMIC_LEVEL=graduacao|mestrado|doutorado|all`
+  - `BOOTSTRAP_ADMIN_EMAIL` (ou `SUPER_ADMIN_EMAIL`)
+  - `BOOTSTRAP_ADMIN_PASSWORD` (recomendado)
+- Variaveis opcionais de debug do crawler:
+  - `CRAWLER_SIGAA_DEBUG_DETAIL=1`
+  - `CRAWLER_SIGAA_DEBUG_CODES=IC045,MATC84`
+  - `CRAWLER_SIGAA_DEBUG_DIR=tmp/sigaa-detail-debug`
+
+### Evidencias de validacao
+
+- `ementas-api`:
+  - `npm run typecheck` concluido sem erros.
+- `ementas-app`:
+  - `npm run typecheck` concluido sem erros.
+
+## 2026-07-01 - Refatoracao da listagem para tabela, simplificacao visual e acesso admin a departamentos
+
+### Problema reportado
+
+- Listagem principal em cards dificultava leitura sequencial de resultados.
+- Filtros de ordenacao por selects ocupavam espaco e nao atendiam ao fluxo esperado de ordenacao por coluna.
+- Excesso de chips visuais (catalogo academico, publicacao oficial, recuperacao de acesso) poluia telas criticas.
+- Fluxo de senha sem controle explicito de visibilidade.
+- Necessidade de acesso administrativo ao CRUD de departamentos a partir do frontend.
+
+### Implementacao
+
+- Frontend (`DisciplineListPage`):
+  - Refatorada listagem de disciplinas para tabela (uma linha por disciplina), com espaco uniforme e acao de abrir na coluna final.
+  - Removidos selects de `Ordenar por` e `Sentido da ordenacao`.
+  - Adicionada ordenacao por clique no cabecalho das colunas (`Codigo`, `Nome`, `Departamento`) com feedback visual de direcao.
+  - Removido o chip `Catalogo academico` para layout mais clean.
+- Frontend (`FormField`):
+  - Adicionado botao de mostrar/ocultar senha (icone de olho) em campos `type=password`.
+- Frontend (`ForgotPasswordPage`):
+  - Removidos chips de destaque e consolidado texto auxiliar em uma frase unica em negrito.
+- Frontend (`ApproveDraftDialog`):
+  - Removido chip `Publicacao oficial` no topo do modal.
+- Frontend (`DepartmentsPage`, `App`, `AppShell`, `api.ts`, `types.ts`):
+  - Criada tela administrativa de departamentos com operacoes de listar, criar, editar e remover.
+  - Adicionada rota protegida `/departamentos` para admins.
+  - Incluido item de navegacao `Departamentos` no menu desktop e mobile para perfis admin/super_admin.
+  - Adicionadas funcoes de API para CRUD de departamentos (`/departments`).
+
+### Evidencias de validacao
+
+- `ementas-app`:
+  - `npm run test -- --run` aprovado (38/38).
+  - `npm run typecheck` concluido sem erros.
+
 ## 2026-05-11 - Convite por e-mail com fallback sem SMTP em ambiente de desenvolvimento
 
 ### Problema reportado
