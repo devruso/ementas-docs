@@ -1,5 +1,7 @@
 # Runbook - Login em producao e SMTP Gmail no EMENTAS
 
+> Revisao em 2026-11-06: o diagnostico abaixo e historico. No frontend atual, `VITE_API_URL` e incorporada durante a build Vite (inclusive via build arg do Docker); o fallback e a origem da pagina com `/api`. As referencias a `runtime-config.js` e ao entrypoint descrevem uma implementacao anterior e nao devem orientar novos deploys. Os exemplos de fontes SIGAA sao registros operacionais, sem nova verificacao de disponibilidade externa nesta revisao.
+
 ## Objetivo
 
 Resolver o bloqueio de login em producao, habilitar envio real de e-mails com Gmail e registrar o checklist minimo para operar o EMENTAS no dominio institucional.
@@ -136,8 +138,58 @@ BOOTSTRAP_ADMIN_EMAIL=<email-ufba> \
 BOOTSTRAP_ADMIN_NAME="Bootstrap Super Admin" \
 BOOTSTRAP_ADMIN_PASSWORD=<senha-forte> \
 BOOTSTRAP_SIGAA_SOURCE_TYPE=department \
-BOOTSTRAP_SIGAA_SOURCE_ID=<id-fonte> \
+BOOTSTRAP_SIGAA_SOURCE_ID_GRADUACAO=<id-graduacao> \
+BOOTSTRAP_SIGAA_SOURCE_ID_MESTRADO=<id-mestrado> \
+BOOTSTRAP_SIGAA_SOURCE_ID_DOUTORADO=<id-doutorado> \
 BOOTSTRAP_SIGAA_ACADEMIC_LEVEL=all
+```
+
+Se precisar importar varias fontes do mesmo nivel no bootstrap, use as variaveis `BOOTSTRAP_SIGAA_SOURCE_IDS_*` separadas por virgula. Exemplo para o IC:
+
+```sh
+dokku config:set ementas-api \
+BOOTSTRAP_SIGAA_SOURCE_TYPE=department \
+BOOTSTRAP_SIGAA_ACADEMIC_LEVEL=all \
+BOOTSTRAP_SIGAA_SOURCE_IDS_GRADUACAO=1118,1935,1934 \
+BOOTSTRAP_SIGAA_SOURCE_IDS_MESTRADO=1820
+```
+
+### Importacao SIGAA em producao (sem localhost)
+
+No endpoint de importacao SIGAA, os IDs podem vir do payload **ou** do ambiente do backend.
+
+Se os IDs estiverem no ambiente (`BOOTSTRAP_SIGAA_SOURCE_ID*`), a chamada pode ser feita sem `sourceId`:
+
+Observacao importante:
+
+- Se nenhum `BOOTSTRAP_SIGAA_SOURCE_ID*`/`BOOTSTRAP_SIGAA_SOURCE_IDS*` estiver definido, o backend aplica fallback interno por nivel apenas para fontes publicas validadas com oferta observada (`graduacao=1114`, `mestrado=1820`). Doutorado permanece dependente de fonte publica realmente disponivel.
+
+```sh
+curl -X POST https://api.ementas.app.ic.ufba.com.br/api/components/import/sigaa-public \
+	-H "Authorization: Bearer <token-admin-ou-super-admin>" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"sourceType": "department",
+		"academicLevel": "all"
+	}'
+```
+
+Para forcar IDs por chamada (sobrescrevendo ambiente):
+
+```sh
+curl -X POST https://api.ementas.app.ic.ufba.com.br/api/components/import/sigaa-public \
+	-H "Authorization: Bearer <token-admin-ou-super-admin>" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"sourceType": "department",
+		"sourceId": "1114",
+		"academicLevel": "all",
+		"sourceIdsByLevel": {
+			"graduacao": "1114",
+			"mestrado": "1820",
+			"doutorado": "43753"
+		}
+	}'
 ```
 
 ### Frontend no Dokku
@@ -167,6 +219,7 @@ Observacoes:
 - Convite e recuperacao de senha com e-mail HTML (UTF-8), botao de acao e identidade visual do IC.
 - Backend de convite agora envia `text + html` e preserva fallback para compartilhamento manual do link quando o SMTP falha.
 - Ajuste no importador SIGAA: em `academicLevel=all`, o backend aceita IDs por nivel (`sourceIdsByLevel`) sem exigir `sourceId` global.
+- Ajuste no importador SIGAA: quando variaveis `BOOTSTRAP_SIGAA_SOURCE_ID*` nao estao definidas, o backend usa fallback por nivel (`1114/1820`) apenas para fontes publicas validadas. Para importar varias unidades do mesmo nivel no bootstrap, use `BOOTSTRAP_SIGAA_SOURCE_IDS_*`.
 - Favicon reforcado no frontend com `icon`, `shortcut icon` e `apple-touch-icon` com cache-busting.
 
 ## O que ainda falta para uso real em producao
