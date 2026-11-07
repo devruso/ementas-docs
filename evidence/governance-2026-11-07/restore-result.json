@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "environment": "isolated local PostgreSQL with synthetic browser fixtures",
+  "source": "governance_browser_test",
+  "matchingCounts": { "institutes": 1, "courses": 2, "users": 3, "componentVersions": 1 },
+  "immutableHistoryTrigger": true,
+  "encryption": "age",
+  "productionDatabaseAccessed": false
+}

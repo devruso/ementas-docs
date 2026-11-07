@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "realDatabase": true,
+  "scenarios": [
+    "institute",
+    "department",
+    "direct-course",
+    "department-program",
+    "invite",
+    "resend",
+    "registration-password",
+    "reuse-code",
+    "draft-owner-conflict",
+    "publication",
+    "history",
+    "mobile"
+  ]
+}
